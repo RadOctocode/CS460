@@ -26,12 +26,12 @@ void draw_Line(int start_x,int start_y,int end_x,int end_y){
             change_error=float_abs(change_y/change_x);
         }
 
+        glBegin(GL_POINTS);
+
         for(int myX=start_x;myX<end_x;myX++){
 
-            glBegin(GL_POINTS);
-            glVertex3f(myX,myY,0.0);
-            glEnd();
-            glFlush();
+            glVertex2i(myX,myY);
+       
 
             myError=change_error+myError;
             while(myError>=0.5){
@@ -43,6 +43,9 @@ void draw_Line(int start_x,int start_y,int end_x,int end_y){
 
 
         }
+        glEnd();
+                    glFlush();
+
             
         
         
@@ -50,8 +53,10 @@ void draw_Line(int start_x,int start_y,int end_x,int end_y){
 }
 void movement(int x, int y){
 
+//glutGet(GLUT_WINDOW_HEIGHT)-
         if(clicked){
-            draw_Line(xi,yi,x,y);
+            int new_y=glutGet(GLUT_WINDOW_HEIGHT)-y;
+            draw_Line(xi,yi,x,new_y);
 
         }
 
@@ -63,7 +68,7 @@ void mouse(int bin, int state , int x , int y) {
 
         clicked=!clicked;
         xi=x;
-        yi=y;
+        yi=glutGet(GLUT_WINDOW_HEIGHT)-y;
 	}
 
 }
@@ -72,6 +77,9 @@ void mouse(int bin, int state , int x , int y) {
 int main (int argc,char** argv){
  glutInit(&argc,argv);
  glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+
+ glLoadIdentity();
+ glMatrixMode( GL_PROJECTION );
  glutInitWindowSize(400,400);
  glutInitWindowPosition(100,100);
  glutCreateWindow("My Window");
@@ -82,6 +90,7 @@ int main (int argc,char** argv){
  glClear(GL_COLOR_BUFFER_BIT);
  glFlush();
  glutMainLoop();
+
  return 0;
  
 }
