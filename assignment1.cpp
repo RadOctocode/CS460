@@ -20,35 +20,65 @@ void draw_Line(int start_x,int start_y,int end_x,int end_y){
         float change_x=end_x-start_x;
         float change_error=0;
         float myError=0;
+        bool vertical=false;
         int myY=start_y;
 
         if(change_x!=0){
             change_error=float_abs(change_y/change_x);
         }
-
-        glBegin(GL_POINTS);
-
-        for(int myX=start_x;myX<end_x;myX++){
-
-            glVertex2i(myX,myY);
-       
-
-            myError=change_error+myError;
-            while(myError>=0.5){
-
-                myY=myY+(change_y/float_abs(change_y));
-                myError=myError-1;
-
-            }
-
+        else{
+            vertical=true;
 
         }
-        glEnd();
-                    glFlush();
 
+
+        if(change_error<1 && !vertical){
+           
+            if(change_x > 0){
+
+
+                for(int myX=start_x;myX<end_x;myX++){
+
+                    glVertex2i(myX,myY);
+                    myError=change_error+myError;
+
+                    while(myError>=0.5){
+                        myY=myY+(change_y/float_abs(change_y));
+                        myError=myError-1;
+                    }
+
+
+                }
+           
             
-        
-        
+            }//if its a positive slope
+
+            else{
+
+                for(int myX=start_x;myX>end_x;myX--){
+
+                    glVertex2i(myX,myY);
+                    myError=change_error+myError;
+
+                    while(myError>=0.5){
+                        myY=myY+(change_y/float_abs(change_y));
+                        myError=myError-1;
+                    }
+
+
+                }
+
+
+
+            }//if its a negative 
+        } //if the slope is smaller than 1 and they are not vertical
+        else if(hange_error>1 && !vertical){
+            std::cout<<"hi\n";
+            
+
+        }
+
+       
         
 }
 void movement(int x, int y){
@@ -56,7 +86,10 @@ void movement(int x, int y){
 //glutGet(GLUT_WINDOW_HEIGHT)-
         if(clicked){
             int new_y=glutGet(GLUT_WINDOW_HEIGHT)-y;
+            glBegin(GL_POINTS);
             draw_Line(xi,yi,x,new_y);
+            glEnd();
+            glFlush();
 
         }
 
