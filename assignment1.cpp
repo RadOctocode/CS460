@@ -4,6 +4,9 @@
 #include <cmath>
 //g++ -o foo assignment1.cpp -lglut -lGLU -lGL -lm 
 bool clicked=false;
+bool stipple=false;
+bool b_line=true;
+bool mid_line=false;
 int xi, yi;
 float float_abs(float i){
     if(i<0){
@@ -114,88 +117,34 @@ void brensenham_line(int start_x,int start_y,int end_x,int end_y){
             }
             
 
-        }//otherwise plot using y
-
-       
-        
+        }//otherwise plot using y      
 }
 
-void midpoint_line(int start_x,int start_y,int end_x,int end_y){
-
-    int myX = start_x;
-    int myY = start_y;
-
-    if(start_x>end_x){
-        myX=end_x;
-        myY=end_y;
-        end_x=start_x;
-        end_y=start_y;
-        start_x=myX;
-        start_y=myY;
-
-    }
-
-    float change_y=end_y-start_y;
-    float change_x=end_x-start_x;
-    float change=change_y-(change_x/2);
-    float change2=change_x-(change_y/2);
-
-    if((change_x<change_y)&&(start_y>end_y)){
-        printf("work\n");
-    }//if the change in y is larger than the change in x and start y is larger than end y
-
-    glVertex2i(myX,myY);
-
-    if(change_x>change_y){
-
-    if(start_y<end_y){
-        while(myX < end_x){
+void pospos(int start_x,int start_y,int end_x,int end_y){
+ int myX = start_x;
+ int myY = start_y;
+ float change_y=end_y-start_y;
+ float change_x=end_x-start_x;
+ float change=change_y-(change_x/2);
+ float change2=change_x-(change_y/2);
+ change = 2*change_y;
+ change2 = 2* (change_y-change_x);
+ if(change_x>change_y){
+    while(myX < end_x){
             myX++;
             if(change < 0){
                 change=change+change_y;
-
             }
             else{
                 change=change+change_y-change_x;
                 myY++;
-
             }
             glVertex2i(myX,myY);
+    }
 
-
-
-        }
-    }//first and third 
-
-
-
-
-    else{
-        while(myX < end_x){
-            printf("once\n");
-            myX++;
-            /*if(change > 0){
-                change=change-change_y;
-
-            }
-            else{
-                change=change+change_y+change_x;
-                myY--;
-
-            }*/
-            glVertex2i(myX,myY);
-
-        }
-        //fourth wo swap
-        //second with swap
-    }//draws horizontals
-    }//plot using x
-
-
-
-    else{
-        if(start_y<end_y){
-            while(myY<end_y){
+ }
+ else{
+    while(myY<end_y){
                 myY++;
                 if(change2<0){
                     change2=change2+change_x;
@@ -206,44 +155,120 @@ void midpoint_line(int start_x,int start_y,int end_x,int end_y){
                     myX++;
                 }
                  glVertex2i(myX,myY);
-            }
+    }
 
 
-        }//first and third
+
+ }
+}
+
+void negpos(int start_x,int start_y,int end_x,int end_y){
+    int change_x = end_x - start_x;//change in x
+    int change_y = -1 * (end_y - start_y);//change in y
+    float change = 2 * change_y - change_x;//decs
+
+    float E = 2 * change_y;//east
+    float NE = 2 * (change_y - change_x);//"north east"
+
+    float myX=start_x;
+    float myY=start_y;
+    float slope=0;
+    
+    if(change_x != 0){
+        slope = change_y/change_x;
+    }//if its not a horizontal line
 
 
-        else{
+    glVertex2f(myX,myY);//draw the first pixel
 
-            while(myY>end_y){
-               myY--;
-                if(change2<0){
-                    change2=change2+change_x;
+    if(change_x>change_y){
+       
+        float x_sep = 1;//distance between pixels
+        float y_sep = 1;//distance between pixels
+            
+            while(myX < end_x){
+                if(change <= 0){
+                    myX+= x_sep;
+                    change += E;
 
-                }
+                }//draw side
                 else{
-                    change2=change2+change_x-change_y;
-                    myX++;
-                }
-                 glVertex2i(myX,myY);
+                    change += NE;
+                    myX+= x_sep;
+                    myY-= y_sep;
+       
+                }//draw down
+                glVertex2f(myX,myY);
             }
+    }//plot using x
+
+    else{
+        
+        float draw_rate = 1000;//how many pixels do i draw
+        float x_sep = change_x/draw_rate;
+        float y_sep = -(change_y/draw_rate);
+            
+            while(myX < end_x){
+                if(change <= 0){
+                    change += E;
+                    myX+= x_sep;
+                }//draw side
+                else{
+                    change += NE;
+                    myX += x_sep;
+                    myY += y_sep;
+                }//draw down
+
+                glVertex2f(myX,myY);
+            }
+    }//plot usig y
+
+            
+}
 
 
-        }
+void midpoint_line(int start_x,int start_y,int end_x,int end_y){
+    glColor3f(0,1,0);
+
+    int x_quad=end_x-start_x;
+    int y_quad=end_y-start_y;
+
+    if((x_quad>0)&&(y_quad>0)){
+        pospos(start_x,start_y,end_x,end_y);
+    }//quad1
+    else if((x_quad<0)&&(y_quad>0)){
+        negpos(end_x,end_y,start_x,start_y);
+        
+    }//quad2
+    else if((x_quad<0)&&(y_quad<0)){
+        pospos(end_x,end_y,start_x,start_y);
+    }//quad3
+    else if((x_quad>0)&&(y_quad<0)){
+        negpos(start_x,start_y,end_x,end_y);
 
 
-    }//plot using y
+
+    }//quad4
+   
 
 
 
 }
+
+
+
 
 void movement(int x, int y){
 //glutGet(GLUT_WINDOW_HEIGHT)-
         if(clicked){
             int new_y=glutGet(GLUT_WINDOW_HEIGHT)-y;
             glBegin(GL_POINTS);
-            //brensenham_line(xi,yi,x,new_y);
+            if(b_line){
+                brensenham_line(xi,yi,x,new_y);
+            }
+            else if(mid_line){
             midpoint_line(xi,yi,x,new_y);
+            }
             glEnd();
             glFlush();
 
@@ -277,6 +302,7 @@ int main (int argc,char** argv){
  glutCreateWindow("My Window");
  glutPassiveMotionFunc(movement);
  glutMouseFunc(mouse);
+ glutDisplayFunc(show);
  gluOrtho2D(0,1000,0,1000);
  glClearColor (0.0, 0.0, 0.0, 0.0);
  glClear(GL_COLOR_BUFFER_BIT);
