@@ -3,6 +3,7 @@
 #include <iostream>
 #include <cmath>
 #include <vector>
+#include <stack>          // std::stack
 //g++ -o foo assignment2.cpp -lglut -lGLU -lGL -lm 
 struct point{
     int str_x,str_y;
@@ -25,6 +26,9 @@ int other_poly=0;
 int temp_x2,temp_y2;
 point hold;
 dot temp;
+bool flood=false;
+int flood_x=-1;
+int flood_y=-1;
 
 
 std::vector<point> lines_to_draw;
@@ -51,6 +55,34 @@ void movement(int x, int y){
         }
 }
 
+void floodfill(int x, int y, unsigned char* seed){
+        unsigned char current_p[4];
+
+        glReadPixels(x,y,1,1,GL_RGB, GL_UNSIGNED_BYTE, current_p);
+            glColor3f(1,0,0);
+            glBegin(GL_POINTS);
+            glVertex2i(x,y);
+            glEnd();
+            glutSwapBuffers();
+            //check correct color
+        if(seed[0]==current_p[0] && seed[1]==current_p[1] && seed[2]==current_p[2] ){
+                //color red
+                //glBegin(GL_POINTS);
+                //color
+            printf("x:%d y:%d\n",x,y );
+
+                //add
+          
+            floodfill(x+1,y,seed);
+            floodfill(x-1,y,seed);
+            floodfill(x,y-1,seed);
+            floodfill(x,y+1,seed);
+               
+        }
+            
+
+}//using a dfs
+
 void mouse(int bin, int state , int x , int y) {
 	if(bin == GLUT_LEFT_BUTTON && state == GLUT_DOWN){
         if(!clicked){
@@ -76,6 +108,16 @@ void mouse(int bin, int state , int x , int y) {
             }
 
         }
+        if(flood){
+            flood_x=x;
+            flood_y=glutGet(GLUT_WINDOW_HEIGHT)-y;
+            unsigned char bg[4];
+            glReadPixels(flood_x,flood_y,1,1,GL_RGB, GL_UNSIGNED_BYTE, bg);
+            floodfill(flood_x,flood_y,bg);
+            glutPostRedisplay();
+
+
+        }
 
 	}
     if(bin == GLUT_RIGHT_BUTTON && state == GLUT_DOWN){
@@ -96,11 +138,14 @@ void control(unsigned char key, int x, int y){
    
     if(key=='c'){
         clip=true;
+        printf("clipped\n");
         glutPostRedisplay();
 
     }
     if(key=='f'){
-
+        
+        flood=!flood;
+        printf("floodfill mode: %d\n",flood);
     }
 } 
 
@@ -523,6 +568,7 @@ void display(){
 
 
     }
+
     glEnd();
     glutSwapBuffers();
 }
