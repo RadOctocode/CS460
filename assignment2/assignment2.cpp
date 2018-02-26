@@ -35,6 +35,7 @@ std::vector<point> lines_to_draw;
 std::vector<dot> clip_window;
 std::vector<dot> polygon_vertex;
 std::vector<dot> new_polygon;
+std::vector<dot> color;
 
 void gl_line(int start_x,int start_y,int end_x,int end_y){
     glVertex2i(start_x,start_y);//draw the first pixel
@@ -66,13 +67,16 @@ void floodfill(int x, int y, unsigned char* seed){
             glutSwapBuffers();
             //check correct color
         if(seed[0]==current_p[0] && seed[1]==current_p[1] && seed[2]==current_p[2] ){
+            dot valid_pixel; 
                 //color red
                 //glBegin(GL_POINTS);
                 //color
-            printf("x:%d y:%d\n",x,y );
-
+            valid_pixel.x=x;
+            valid_pixel.y=y;
+            //printf("x:%d y:%d\n",x,y );
+            color.push_back(valid_pixel);
                 //add
-          
+            
             floodfill(x+1,y,seed);
             floodfill(x-1,y,seed);
             floodfill(x,y-1,seed);
@@ -568,8 +572,19 @@ void display(){
 
 
     }
+    
 
     glEnd();
+    glColor3f(1,0,0);
+
+    glBegin(GL_POINTS);
+    for(auto i:color){
+            glVertex2i(i.x,i.y);
+            
+            
+    }        
+    glEnd();
+
     glutSwapBuffers();
 }
 
