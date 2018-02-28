@@ -16,28 +16,35 @@ struct dot{
     int case_num=0;
   
 };
+point hold;
+
+dot temp;
+
 bool clicked=false;
 bool clip=false;
 bool clipped=false;
 bool added=false;
-int dash=10;
+bool flood=false;
+bool view=false;
+
 int xi, yi;
 int other_poly=0;
 int temp_x2,temp_y2;
-point hold;
-dot temp;
-bool flood=false;
-bool view=false;
+
 int flood_x=-1;
 int flood_y=-1;
+
 int vxi=31;
 int vyi=212;
 int vx2=343;
 int vy2=429;
 
+int wxi=441;
+int wyi=407;
+int wx2=1193;
+int wy2=767;
 
 std::vector<point> lines_to_draw;
-std::vector<dot> clip_window;
 std::vector<dot> view_window;
 std::vector<dot> polygon_vertex;
 std::vector<dot> new_polygon;
@@ -200,16 +207,18 @@ int y_intersect(point poly_line, point window_line){
 }
 
 std::vector<dot> clip_left(){
-    int win_str_x=441;
-    int win_str_y=593;
-    int win_end_x=441;
-    int win_end_y=233;
+    int win_str_x=wxi;
+    int win_str_y=glutGet(GLUT_WINDOW_HEIGHT)-wyi;
+    int win_end_x=wxi;
+    int win_end_y=glutGet(GLUT_WINDOW_HEIGHT)-wy2;
+
     dot holding_dot;
     point left;
-    left.str_x=441;
-    left.str_y=593;
-    left.end_x=441;
-    left.end_y=233;
+
+    left.str_x=wxi;
+    left.str_y=glutGet(GLUT_WINDOW_HEIGHT)-wyi;
+    left.end_x=wxi;
+    left.end_y=glutGet(GLUT_WINDOW_HEIGHT)-wy2;
     std::vector<dot> new_dot;
     dot str_line;
     dot end_line;
@@ -252,16 +261,19 @@ std::vector<dot> clip_left(){
 }
 
 std::vector<dot> clip_right(){
-    int win_str_x=1193;
-    int win_str_y=593;
-    int win_end_x=1193;
-    int win_end_y=233;
+    int win_str_x=wx2;
+    int win_str_y=glutGet(GLUT_WINDOW_HEIGHT)-wyi;//593
+    int win_end_x=wx2;
+    int win_end_y=glutGet(GLUT_WINDOW_HEIGHT)-wy2;
+    
     dot holding_dot;
+
     point left;
-    left.str_x=1193;
-    left.str_y=593;
-    left.end_x=1193;
-    left.end_y=233;
+
+    left.str_x=wx2;
+    left.str_y=glutGet(GLUT_WINDOW_HEIGHT)-wyi;
+    left.end_x=wx2;
+    left.end_y=glutGet(GLUT_WINDOW_HEIGHT)-wy2;
     std::vector<dot> new_dot;
     dot str_line;
     dot end_line;
@@ -304,16 +316,16 @@ std::vector<dot> clip_right(){
 }
 
 std::vector<dot> clip_up(){
-    int win_str_x=441;
-    int win_str_y=767;
-    int win_end_x=1193;
-    int win_end_y=767;
+    int win_str_x=wxi;
+    int win_str_y=wy2;
+    int win_end_x=wx2;
+    int win_end_y=wy2;
     dot holding_dot;
     point left;
-    left.str_x=441;
-    left.str_y=767;
-    left.end_x=1193;
-    left.end_y=767;
+    left.str_x=wxi;
+    left.str_y=wy2;
+    left.end_x=wx2;
+    left.end_y=wy2;
     std::vector<dot> new_dot;
     dot str_line;
     dot end_line;
@@ -328,14 +340,14 @@ std::vector<dot> clip_up(){
        
 
 
-        if(str_line.y<767 && end_line.y<767){
+        if(str_line.y<wy2 && end_line.y<wy2){
             holding_dot.x=i.end_x;
             holding_dot.y=i.end_y;
             new_dot.push_back(holding_dot);
 
         }
 
-        else if(str_line.y>=767 && end_line.y<767){
+        else if(str_line.y>=wy2 && end_line.y<wy2){
             holding_dot.x=x_intersect(i,left);
             holding_dot.y=y_intersect(i,left);            
             new_dot.push_back(holding_dot);
@@ -345,7 +357,7 @@ std::vector<dot> clip_up(){
 
         }
 
-        else if(str_line.y<767 && end_line.y>=767){
+        else if(str_line.y<wy2 && end_line.y>=wy2){
             holding_dot.x=x_intersect(i,left);
             holding_dot.y=y_intersect(i,left);            
             new_dot.push_back(holding_dot);
@@ -357,16 +369,22 @@ std::vector<dot> clip_up(){
 }
 
 std::vector<dot> clip_down(){
-    int win_str_x=441;
-    int win_str_y=407;
-    int win_end_x=1193;
-    int win_end_y=407;
+    /*
+    int wxi=441;
+    int wyi=407;
+    int wx2=1193;
+    int wy2=767;
+    */
+    int win_str_x=wxi;
+    int win_str_y=wyi;
+    int win_end_x=wx2;
+    int win_end_y=wyi;
     dot holding_dot;
     point left;
-    left.str_x=441;
-    left.str_y=407;
-    left.end_x=1193;
-    left.end_y=407;
+    left.str_x=wxi;
+    left.str_y=wyi;
+    left.end_x=wx2;
+    left.end_y=wyi;
     std::vector<dot> new_dot;
     dot str_line;
     dot end_line;
@@ -381,14 +399,14 @@ std::vector<dot> clip_down(){
        
         
 
-        if(str_line.y>407 && end_line.y>407){
+        if(str_line.y>wyi && end_line.y>wyi){
             holding_dot.x=i.end_x;
             holding_dot.y=i.end_y;
             new_dot.push_back(holding_dot);
 
         }
 
-        else if(str_line.y<=407 && end_line.y>407){
+        else if(str_line.y<=wyi && end_line.y>wyi){
             holding_dot.x=x_intersect(i,left);
             holding_dot.y=y_intersect(i,left);            
             new_dot.push_back(holding_dot);
@@ -398,7 +416,7 @@ std::vector<dot> clip_down(){
 
         }
 
-        else if(str_line.y>407 && end_line.y<=407){
+        else if(str_line.y>wyi && end_line.y<=wyi){
             holding_dot.x=x_intersect(i,left);
             holding_dot.y=y_intersect(i,left);            
             new_dot.push_back(holding_dot);
@@ -511,16 +529,18 @@ void viewport_window(int x, int y, int x2, int y2){
         gl_line(x2,glutGet(GLUT_WINDOW_HEIGHT)-y,x2,glutGet(GLUT_WINDOW_HEIGHT)-y2);//right
         gl_line(x2,glutGet(GLUT_WINDOW_HEIGHT)-y2,x,glutGet(GLUT_WINDOW_HEIGHT)-y2);//up
         gl_line(x,glutGet(GLUT_WINDOW_HEIGHT)-y2,x,glutGet(GLUT_WINDOW_HEIGHT)-y);//left
+        //printf("y2: %d\n",glutGet(GLUT_WINDOW_HEIGHT)-y2);
+        //printf("y: %d\n",glutGet(GLUT_WINDOW_HEIGHT)-y);
 }
 
 
-void clipping_window(){
+void clipping_window(int x, int y, int x2, int y2){
         glColor3f(1,1,1);
-        gl_line(441,glutGet(GLUT_WINDOW_HEIGHT)-593,1193,glutGet(GLUT_WINDOW_HEIGHT)-593);//down
-        gl_line(1193,glutGet(GLUT_WINDOW_HEIGHT)-593,1193,glutGet(GLUT_WINDOW_HEIGHT)-233);//right
-        gl_line(1193,glutGet(GLUT_WINDOW_HEIGHT)-233,441,glutGet(GLUT_WINDOW_HEIGHT)-233);//up
-        gl_line(441,glutGet(GLUT_WINDOW_HEIGHT)-233,441,glutGet(GLUT_WINDOW_HEIGHT)-593);//left 
-
+        gl_line(x,y,x2,y);//down
+        gl_line(x2,y,x2,y2);//right
+        gl_line(x2,y2,x,y2);//up
+        gl_line(x,y2,x,y);//left 
+       // printf("yi:%d\n",glutGet(GLUT_WINDOW_HEIGHT)-593);
 }
 
  
@@ -533,31 +553,10 @@ void display(){
     gluOrtho2D( 0.0, 1500, 0,1000 );
     //viewport
 
-    glLineStipple(dash, 0xAAAA);
+    glLineStipple(10, 0xAAAA);
     glEnable(GL_LINE_STIPPLE);
     glBegin(GL_LINES);
-    if(!added){
-        dot left,right,up,down;
-
-        down.x=441;
-        down.y=glutGet(GLUT_WINDOW_HEIGHT)-593;
-
-        right.x=1193;
-        right.y=glutGet(GLUT_WINDOW_HEIGHT)-593;
-
-        up.x=1193;
-        up.y=glutGet(GLUT_WINDOW_HEIGHT)-233;
-
-        left.x=441;
-        left.y=glutGet(GLUT_WINDOW_HEIGHT)-233;
-
-        clip_window.push_back(left);
-        clip_window.push_back(up);
-        clip_window.push_back(right);
-        clip_window.push_back(down);
-        added=true;
-    }
-    clipping_window();
+    clipping_window(wxi,wyi,wx2,wy2);
     viewport_window(vxi,vyi,vx2,vy2);
     glEnd();
     glDisable(GL_LINE_STIPPLE);
@@ -600,9 +599,6 @@ void display(){
             gl_line(i.str_x,i.str_y,i.end_x,i.end_y);
             glutPostRedisplay();
         }
-
-
-
     }
     
 
@@ -617,8 +613,8 @@ void display(){
     }        
     glEnd();
     
-    glTranslatef(31, 571, 0);
-    glScalef((float)(343-31)/(float)(1193-441), (float)(788-571)/(float)(767-407), 1.0);
+    glTranslatef(vxi, glutGet(GLUT_WINDOW_HEIGHT)-vy2, 0);
+    glScalef((float)(vx2-vxi)/(float)(1193-441), (float)((glutGet(GLUT_WINDOW_HEIGHT)-vyi)-(glutGet(GLUT_WINDOW_HEIGHT)-vy2))/(float)(767-407), 1.0);
     glTranslatef(-441, -407, 0);
 
     //redraw lines
