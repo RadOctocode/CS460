@@ -612,10 +612,10 @@ void display(){
             
     }        
     glEnd();
-    
+
     glTranslatef(vxi, glutGet(GLUT_WINDOW_HEIGHT)-vy2, 0);
-    glScalef((float)(vx2-vxi)/(float)(1193-441), (float)((glutGet(GLUT_WINDOW_HEIGHT)-vyi)-(glutGet(GLUT_WINDOW_HEIGHT)-vy2))/(float)(767-407), 1.0);
-    glTranslatef(-441, -407, 0);
+    glScalef((float)(vx2-vxi)/(float)(wx2-wxi), (float)((glutGet(GLUT_WINDOW_HEIGHT)-vyi)-(glutGet(GLUT_WINDOW_HEIGHT)-vy2))/(float)(wy2-wyi), 1.0);
+    glTranslatef(-1*wxi, -1*wyi, 0);
 
     //redraw lines
    glBegin(GL_LINES);
