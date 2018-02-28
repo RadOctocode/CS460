@@ -27,12 +27,18 @@ int temp_x2,temp_y2;
 point hold;
 dot temp;
 bool flood=false;
+bool view=false;
 int flood_x=-1;
 int flood_y=-1;
+int vxi=31;
+int vyi=212;
+int vx2=343;
+int vy2=429;
 
 
 std::vector<point> lines_to_draw;
 std::vector<dot> clip_window;
+std::vector<dot> view_window;
 std::vector<dot> polygon_vertex;
 std::vector<dot> new_polygon;
 std::vector<dot> color;
@@ -82,9 +88,7 @@ void floodfill(int x, int y, unsigned char* seed){
             floodfill(x,y-1,seed);
             floodfill(x,y+1,seed);
                
-        }
-            
-
+        }          
 }//using a dfs
 
 void mouse(int bin, int state , int x , int y) {
@@ -122,6 +126,7 @@ void mouse(int bin, int state , int x , int y) {
 
 
         }
+        //printf("x:%d y:%d\n",x,y);
 
 	}
     if(bin == GLUT_RIGHT_BUTTON && state == GLUT_DOWN){
@@ -151,6 +156,13 @@ void control(unsigned char key, int x, int y){
         flood=!flood;
         printf("floodfill mode: %d\n",flood);
     }
+    if(key=='v'){
+        view=!view;
+        printf("view port mode: %d\n",view);
+        glutPostRedisplay();
+
+
+    }
 } 
 
 int x_intersect(point poly_line, point window_line){
@@ -169,6 +181,7 @@ int x_intersect(point poly_line, point window_line){
 
     return top/den;
 }
+
 int y_intersect(point poly_line, point window_line){
     int px1,py1,px2,py2,wx1,wy1,wx2,wy2;
     px1=poly_line.str_x;
@@ -185,6 +198,7 @@ int y_intersect(point poly_line, point window_line){
 
     return top/den;
 }
+
 std::vector<dot> clip_left(){
     int win_str_x=441;
     int win_str_y=593;
@@ -236,6 +250,7 @@ std::vector<dot> clip_left(){
     }
     return new_dot;
 }
+
 std::vector<dot> clip_right(){
     int win_str_x=1193;
     int win_str_y=593;
@@ -287,6 +302,7 @@ std::vector<dot> clip_right(){
     }
     return new_dot;
 }
+
 std::vector<dot> clip_up(){
     int win_str_x=441;
     int win_str_y=767;
@@ -489,6 +505,15 @@ void sutherland_hodgeman(){
    clipped=true;
 }
 
+void viewport_window(int x, int y, int x2, int y2){
+        glColor3f(1,1,1);
+        gl_line(x,glutGet(GLUT_WINDOW_HEIGHT)-y,x2,glutGet(GLUT_WINDOW_HEIGHT)-y);//down
+        gl_line(x2,glutGet(GLUT_WINDOW_HEIGHT)-y,x2,glutGet(GLUT_WINDOW_HEIGHT)-y2);//right
+        gl_line(x2,glutGet(GLUT_WINDOW_HEIGHT)-y2,x,glutGet(GLUT_WINDOW_HEIGHT)-y2);//up
+        gl_line(x,glutGet(GLUT_WINDOW_HEIGHT)-y2,x,glutGet(GLUT_WINDOW_HEIGHT)-y);//left
+}
+
+
 void clipping_window(){
         glColor3f(1,1,1);
         gl_line(441,glutGet(GLUT_WINDOW_HEIGHT)-593,1193,glutGet(GLUT_WINDOW_HEIGHT)-593);//down
@@ -502,7 +527,13 @@ void clipping_window(){
 void display(){
     glClearColor(00.0f, 00.0f, 00.0f, 1.0f );
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-     glLineStipple(dash, 0xAAAA);
+
+    //viewport
+    glLoadIdentity();
+    gluOrtho2D( 0.0, 1500, 0,1000 );
+    //viewport
+
+    glLineStipple(dash, 0xAAAA);
     glEnable(GL_LINE_STIPPLE);
     glBegin(GL_LINES);
     if(!added){
@@ -527,6 +558,7 @@ void display(){
         added=true;
     }
     clipping_window();
+    viewport_window(vxi,vyi,vx2,vy2);
     glEnd();
     glDisable(GL_LINE_STIPPLE);
     glBegin(GL_LINES);
@@ -536,9 +568,9 @@ void display(){
         gl_line(i.str_x,i.str_y,i.end_x,i.end_y);
 
     }
-        if(!clipped){
-            gl_line(hold.str_x,hold.str_y,hold.end_x,hold.end_y);
-        }   
+    if(!clipped){
+        gl_line(hold.str_x,hold.str_y,hold.end_x,hold.end_y);
+    }   
 
     if(clip&&!clipped){
         sutherland_hodgeman();
@@ -584,6 +616,32 @@ void display(){
             
     }        
     glEnd();
+    
+    glTranslatef(31, 571, 0);
+    glScalef((float)(343-31)/(float)(1193-441), (float)(788-571)/(float)(767-407), 1.0);
+    glTranslatef(-441, -407, 0);
+
+    //redraw lines
+   glBegin(GL_LINES);
+
+    for (auto i:lines_to_draw){
+        gl_line(i.str_x,i.str_y,i.end_x,i.end_y);
+
+    }
+    if(!clipped){
+        gl_line(hold.str_x,hold.str_y,hold.end_x,hold.end_y);
+    }  
+    glEnd();
+    //redraw_lines
+    //redraw pixels
+    glBegin(GL_POINTS);
+    for(auto i:color){
+        glVertex2i(i.x,i.y);
+    }        
+    glEnd();
+    //redraw pixels
+    glLoadIdentity();
+    gluOrtho2D( 0.0, 1500, 0,1000 );
 
     glutSwapBuffers();
 }
@@ -597,7 +655,7 @@ int main (int argc,char** argv){
  glMatrixMode( GL_PROJECTION );
  glutInitWindowSize(1500,1000);
  glutInitWindowPosition(100,100);
- glutCreateWindow("My Window");
+ glutCreateWindow("clipping filling and viewport");
  glutPassiveMotionFunc(movement);
  glutMouseFunc(mouse);
  glutKeyboardFunc(control);
