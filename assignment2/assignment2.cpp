@@ -26,6 +26,9 @@ bool clipped=false;
 bool added=false;
 bool flood=false;
 bool view=false;
+bool resize_view=false;
+bool resize_window=false;
+bool move_window=false;
 
 int xi, yi;
 int other_poly=0;
@@ -43,6 +46,7 @@ int wxi=441;
 int wyi=407;
 int wx2=1193;
 int wy2=767;
+
 
 std::vector<point> lines_to_draw;
 std::vector<dot> view_window;
@@ -64,9 +68,29 @@ void movement(int x, int y){
             hold.end_y=glutGet(GLUT_WINDOW_HEIGHT)-y;
             temp.x=x;
             temp.y=glutGet(GLUT_WINDOW_HEIGHT)-y;
-            glutPostRedisplay();
 
         }
+        if(resize_view){
+            vx2=x;
+            vyi=y;
+        }
+
+    
+        if(resize_window){
+            wx2=x;
+            wy2=glutGet(GLUT_WINDOW_HEIGHT)-y;
+        }
+
+        if(move_window){
+            int window_length=std::abs(wxi-wx2); 
+            int window_height=std::abs(wyi-wy2);
+            wxi=x;
+            wx2=x+window_length;
+            wy2=glutGet(GLUT_WINDOW_HEIGHT)-y;
+            wyi=(wy2-window_height);
+        }
+
+        glutPostRedisplay();
 }
 
 void floodfill(int x, int y, unsigned char* seed){
@@ -100,6 +124,7 @@ void floodfill(int x, int y, unsigned char* seed){
 
 void mouse(int bin, int state , int x , int y) {
 	if(bin == GLUT_LEFT_BUTTON && state == GLUT_DOWN){
+        if(!view){
         if(!clicked){
             clicked=!clicked;
             xi=x;
@@ -133,7 +158,24 @@ void mouse(int bin, int state , int x , int y) {
 
 
         }
-        //printf("x:%d y:%d\n",x,y);
+        }
+
+        if(view){
+            //top right to scale viewport
+            if(std::abs(x-vx2)<35 && std::abs(y-vyi)<35){
+                resize_view=!resize_view;
+            }
+            //top right to scale clip
+            else if(std::abs(x-(wx2))<35 && std::abs(y-(glutGet(GLUT_WINDOW_HEIGHT)-wy2))<35){
+                resize_window=!resize_window;
+            }
+            //top left to move window for panning
+            else if(std::abs(x-(wxi))<35 && std::abs(y-(glutGet(GLUT_WINDOW_HEIGHT)-wy2))<35){
+                move_window=!move_window;
+            }
+        }
+        //printf("what i think it is x:%d y:%d\n", x, y);
+               // printf("what i think it is x:%d y:%d\n", (glutGet(GLUT_WINDOW_HEIGHT)-wxi), y);
 
 	}
     if(bin == GLUT_RIGHT_BUTTON && state == GLUT_DOWN){
@@ -540,7 +582,7 @@ void clipping_window(int x, int y, int x2, int y2){
         gl_line(x2,y,x2,y2);//right
         gl_line(x2,y2,x,y2);//up
         gl_line(x,y2,x,y);//left 
-       // printf("yi:%d\n",glutGet(GLUT_WINDOW_HEIGHT)-593);
+       
 }
 
  
@@ -567,7 +609,7 @@ void display(){
         gl_line(i.str_x,i.str_y,i.end_x,i.end_y);
 
     }
-    if(!clipped){
+    if(!clipped&&!view){
         gl_line(hold.str_x,hold.str_y,hold.end_x,hold.end_y);
     }   
 
