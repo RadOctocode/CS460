@@ -95,31 +95,46 @@ void movement(int x, int y){
 
 void floodfill(int x, int y, unsigned char* seed){
         unsigned char current_p[4];
+        dot start_dot,temp_dot;
+        start_dot.x=x;
+        start_dot.y=y;
+        std::stack<dot> mydots;
+        mydots.push(start_dot);
 
-        glReadPixels(x,y,1,1,GL_RGB, GL_UNSIGNED_BYTE, current_p);
+        while(!mydots.empty()){
+            //check correct color
+            temp_dot=mydots.top();
+            mydots.pop();
+
+            glReadPixels(temp_dot.x,temp_dot.y,1,1,GL_RGB, GL_UNSIGNED_BYTE, current_p);
             glColor3f(1,0,0);
             glBegin(GL_POINTS);
-            glVertex2i(x,y);
+            glVertex2i(temp_dot.x,temp_dot.y);
             glEnd();
             glutSwapBuffers();
-            //check correct color
+            color.push_back(temp_dot);
+
         if(seed[0]==current_p[0] && seed[1]==current_p[1] && seed[2]==current_p[2] ){
-            dot valid_pixel; 
-                //color red
-                //glBegin(GL_POINTS);
-                //color
-            valid_pixel.x=x;
-            valid_pixel.y=y;
-            //printf("x:%d y:%d\n",x,y );
-            color.push_back(valid_pixel);
+            dot valid_pixel,left,right,up,down; 
                 //add
-            
-            floodfill(x+1,y,seed);
-            floodfill(x-1,y,seed);
-            floodfill(x,y-1,seed);
-            floodfill(x,y+1,seed);
-               
-        }          
+            left.x=(temp_dot.x)-1;
+            left.y=temp_dot.y;
+
+            up.x=temp_dot.x;
+            up.y=(temp_dot.y)-1;
+
+            down.x=temp_dot.x;
+            down.y=(temp_dot.y)+1;
+
+            right.x=(temp_dot.x)+1;
+            right.y=temp_dot.y;
+
+            mydots.push(down);
+            mydots.push(up);
+            mydots.push(left);
+            mydots.push(right);   
+        }      
+        }    
 }//using a dfs
 
 void mouse(int bin, int state , int x , int y) {
@@ -614,6 +629,7 @@ void display(){
     }   
 
     if(clip&&!clipped){
+        printf("sh");
         sutherland_hodgeman();
 
     }
