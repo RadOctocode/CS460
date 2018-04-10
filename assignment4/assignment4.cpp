@@ -126,7 +126,7 @@ bmp_file load_bmp(){
         pixels[i] = pixels[i+2];
         pixels[i+2] = temp_byte;
     }//swap B and R
-    printf("%c\n",pixels[0]);
+
     retval.pixel_colors=pixels;
     retval.width=my_width;
     retval.height=my_height;
@@ -134,107 +134,14 @@ bmp_file load_bmp(){
    return retval;
 }
 
-bool inside_rect(rectangle my_rect ,int x ,int y){
-  bool x_axis=(x>=my_rect.ll.x)&&(x<=my_rect.lr.x);
-  bool y_axis=(y>=my_rect.ll.y)&&(y<=my_rect.tl.y);
-  return x_axis&&y_axis;
-}
 
-rectangle* seperate_bmp(const bmp_file& object){
-  rectangle* retval=new rectangle[4];
-  //ll rect
-    retval[0].ll.x=0;
-    retval[0].lr.x=192;
-    retval[0].tr.x=192;
-    retval[0].tl.x=0;
-    retval[0].ll.y=0;
-    retval[0].lr.y=0;
-    retval[0].tr.y=128;
-    retval[0].tl.y=128;
-  //lr rect
-    retval[1].ll.x=192;
-    retval[1].lr.x=384;
-    retval[1].tr.x=384;
-    retval[1].tl.x=192;
-    retval[1].ll.y=0;
-    retval[1].lr.y=0;
-    retval[1].tr.y=128;
-    retval[1].tl.y=128;
-  //tr rect
-    retval[2].ll.x=192;
-    retval[2].lr.x=384;
-    retval[2].tr.x=384;
-    retval[2].tl.x=192;
-    retval[2].ll.y=128;
-    retval[2].lr.y=128;
-    retval[2].tr.y=256;
-    retval[2].tl.y=256;
-  //tl rect
-    retval[3].ll.x=0;
-    retval[3].lr.x=192;
-    retval[3].tr.x=192;
-    retval[3].tl.x=0;
-    retval[3].ll.y=128;
-    retval[3].lr.y=128;
-    retval[3].tr.y=256;
-    retval[3].tl.y=256;
-
-  for(int i=0;i<object.width;i++){
-    for(int j=0;j<object.height;j++){
-        int offset = i+object.width*j;
-        unsigned char b_ = object.pixel_colors[3*offset + 0];
-        unsigned char g_ = object.pixel_colors[3*offset + 1];
-        unsigned char r_ = object.pixel_colors[3*offset + 2];
-
-        for(auto rect: retval){
-          if(inside_rect(rect,i,j)){
-            pixel current_pixel;
-            current_pixel.x=i;
-            current_pixel.y=j;
-            current_pixel.r=r_;
-            current_pixel.g=g_;
-            current_pixel.b=b_;
-
-            rect.pixels.push_back(current_pixel);
-          }
-        }
-
-    }
-
-
-  }
-
-
-  return retval;  
-}
-
-void create_panel(const rectangle& panel){
-  glBegin(GL_POINTS);
-  for (auto pixel_: panel.pixels) {
-      glColor3ub(pixel_.r, pixel_.g, pixel_.b);
-      glVertex2d(pixel_.x, pixel_.y);
-    }
-  glEnd();
-
-}
-
-void draw_texture(rectangle rect_array[4]){
-  glPushMatrix();
-  glRotated(rotation, 0.0, 0.0, 1.0);
-  glScalef(0.036, 0.04, 0.04);
-  glTranslatef(-384/2.0, -256/2.0, 0.0);
-  for(int i=0;i<4;i++){
-    create_panel(rect_array[i]);
-  }
- glPopMatrix();
-}
 
 void display(){
   glClearColor(00.0f, 00.0f, 00.0f, 1.0f );
   glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT );
   obj_file teapot=load_obj();
   bmp_file flower=load_bmp();
-  rectangle* flower_panels=seperate_bmp(flower);
+  //rectangle* flower_panels=seperate_bmp(flower);
   glColor3f(0,1,0);
   glLineWidth(1);
 
@@ -248,8 +155,32 @@ void display(){
 
   // Camera adjustment
   if(scene){
-    glDrawPixels(384,256, GL_RGB, GL_UNSIGNED_BYTE,flower.pixel_colors);
+
+    //glDrawPixels(flower.width,flower.height, GL_RGB, GL_UNSIGNED_BYTE,flower.pixel_colors);
     //draw_texture(flower_panels);
+
+    glPushMatrix();
+    glRotated(rotation, 0.0, 0.0, 1.0);
+    glScalef(0.036, 0.04, 0.04);
+    glTranslatef(-flower.width/2.0, -flower.height/2.0, 0.0);
+    for(int i=0;i<flower.height;i++){
+      for(int j=0;j<flower.width;j++){
+          glBegin(GL_POINTS);
+          int offset = j+flower.width*i;
+          unsigned char r=flower.pixel_colors[3*offset + 0];
+          unsigned char g=flower.pixel_colors[3*offset + 1];
+          unsigned char b=flower.pixel_colors[3*offset + 2];
+          glColor3ub(r,g,b);
+          //glColor3f(1,1,0);
+          glVertex2i(j,i);
+              glEnd();
+
+      }
+
+    }
+
+  glPopMatrix();
+
   }
 
   if(!scene){
@@ -286,10 +217,12 @@ void control(unsigned char key, int x, int y){
 
   if(key=='r'){
     object_degree=object_degree+5;
+    rotation+=30;
   }
 
   if(key=='e'){
     object_degree=object_degree-5;
+    rotation-=30;
   }
 
 
