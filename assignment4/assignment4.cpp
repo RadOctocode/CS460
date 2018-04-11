@@ -3,27 +3,45 @@
 #include <iostream>
 #include <fstream>
 #include <cmath>
+#include <math.h>
 #include <vector>
 #include <stack>          // std::stack
 
 //g++ -o foo assignment3.cpp -lglut -lGLU -lGL -lm
 bool scene=true;
+bool init=false;
 
 int width=1000;
 int height=1000;
 int HEADER_SIZE = 54;
 int WIDTH_OFFSET = 18;
 int HEIGHT_OFFSET = 22;
+int normal_x=192;
+int normal_y=128;
+
+int current_middle_x=;
+int current_middle_y=;
+
+
 
 double zoom=0;
 
 float object_degree=0;
 float rotation=0;
 
-
 struct int_point{
   int x,y;
   int z=0;
+  int_point(int my_x,int my_y,int my_z){
+    x=my_x;
+    y=my_y;
+    z=my_z;
+  }
+  int_point(int my_x,int my_y){
+    x=my_x;
+    y=my_y;
+  }
+  int_point(){}
 };
 
 struct double_point{
@@ -33,6 +51,15 @@ struct double_point{
 struct pixel{
   int x,y;
   unsigned char r,g,b;
+  pixel(){}
+  pixel(int x_,int y_, unsigned char r_, unsigned char g_, unsigned char b_){
+    x=x_;
+    y=y_;
+    r=r_;
+    b=b_;
+    g=g_;
+
+  }
 };
 
 struct obj_file{
@@ -49,10 +76,16 @@ struct bmp_file{
 struct rectangle{
   int_point ll,lr,tr,tl;
   std::vector<pixel> pixels;
+  rectangle(){}
+  rectangle(int_point bl,int_point br,int_point ur,int_point ul){
+    ll=bl;
+    lr=br;
+    tr=ur;
+    tl=ul;
+  }
 };
 
-
-
+rectangle texture_panels[4];
 
 
 obj_file load_obj(){
@@ -134,14 +167,78 @@ bmp_file load_bmp(){
    return retval;
 }
 
+void seperate_bmp(const bmp_file &texture){
+  int_point bottom_left=int_point(0,0);
+  int_point bottom_middle=int_point(texture.width/2,0);
+  int_point bottom_right=int_point(texture.width,0);
 
+  int_point top_left=int_point(0,texture.height);
+  int_point top_middle=int_point(texture.width/2,texture.height);
+  int_point top_right=int_point(texture.width,texture.height);
+
+  int_point middle_left=int_point(0,texture.height/2);
+  int_point middle_right=int_point(texture.width,texture.height/2);  
+  int_point middle=int_point(texture.width/2,texture.height/2);
+
+  texture_panels[0]=rectangle(bottom_left,bottom_middle,middle,middle_left);
+  texture_panels[1]=rectangle(bottom_middle,bottom_right,middle_right,middle);
+  texture_panels[2]=rectangle(middle,middle_right,top_right,top_middle);
+  texture_panels[3]=rectangle(middle_left,middle,top_middle,top_left);
+
+  
+  for(int i=0;i<256;i++){
+      for(int j=0;j<384;j++){
+
+          int offset = j+384*i;
+          pixel current_pixel;
+
+          unsigned char r=texture.pixel_colors[3*offset + 0];
+          unsigned char g=texture.pixel_colors[3*offset + 1];
+          unsigned char b=texture.pixel_colors[3*offset + 2];
+              
+              
+
+          if(i>=0&&i<=128&&j>=0&&j<=192){
+            texture_panels[0].pixels.push_back(pixel(j,i,r,g,b));
+          }
+          if(i>=0&&i<=128&&j>=192&&j<=384){
+            texture_panels[1].pixels.push_back(pixel(j,i,r,g,b));
+          }
+          else if(i>=128&&i<=256&&j>=192&&j<=384){
+            texture_panels[2].pixels.push_back(pixel(j,i,r,g,b));
+          }
+          else if(i>=128&&i<=256&&j>=0&&j<=192){
+            texture_panels[3].pixels.push_back(pixel(j,i,r,g,b));
+          }
+             
+
+
+
+
+      }
+
+    }
+
+}
+
+void draw_panel(const rectangle &panel){
+  printf("%u\n",panel.pixels.size());
+  for(auto pixel_:panel.pixels){
+          glColor3ub(pixel_.r,pixel_.g,pixel_.b);
+          glVertex2i(pixel_.x,pixel_.y);
+  }
+
+}
 
 void display(){
   glClearColor(00.0f, 00.0f, 00.0f, 1.0f );
-  glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT );
+  glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
   obj_file teapot=load_obj();
   bmp_file flower=load_bmp();
-  //rectangle* flower_panels=seperate_bmp(flower);
+  if(!init){
+    seperate_bmp(flower);
+    init=!init;
+  } 
   glColor3f(0,1,0);
   glLineWidth(1);
 
@@ -159,11 +256,7 @@ void display(){
     //glDrawPixels(flower.width,flower.height, GL_RGB, GL_UNSIGNED_BYTE,flower.pixel_colors);
     //draw_texture(flower_panels);
 
-    glPushMatrix();
-    glRotated(rotation, 0.0, 0.0, 1.0);
-    glScalef(0.036, 0.04, 0.04);
-    glTranslatef(-flower.width/2.0, -flower.height/2.0, 0.0);
-    for(int i=0;i<flower.height;i++){
+    /*for(int i=0;i<flower.height;i++){
       for(int j=0;j<flower.width;j++){
           glBegin(GL_POINTS);
           int offset = j+flower.width*i;
@@ -171,14 +264,26 @@ void display(){
           unsigned char g=flower.pixel_colors[3*offset + 1];
           unsigned char b=flower.pixel_colors[3*offset + 2];
           glColor3ub(r,g,b);
-          //glColor3f(1,1,0);
           glVertex2i(j,i);
-              glEnd();
+          glEnd();
 
       }
 
     }
+*/
+    glPushMatrix();
+    glRotated(rotation, 0.0, 0.0, 1.0);
+    glScalef(0.018, 0.02, 0.02);//scale down
+    glTranslatef(-flower.width/2.0, -flower.height/2.0, 0.0);//center
 
+
+    glBegin(GL_POINTS);
+      draw_panel(texture_panels[0]);
+      draw_panel(texture_panels[1]);
+      draw_panel(texture_panels[2]);
+      draw_panel(texture_panels[3]);
+
+    glEnd();
   glPopMatrix();
 
   }
