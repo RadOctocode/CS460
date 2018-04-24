@@ -32,14 +32,14 @@ struct triangle{
 		b=b_;
 		c=c_;
 	}
-
 };
 
 point display_points[16][16];
 point control_points[4][4];
+point extra_credit[4];
 std::vector<triangle> surface_triangles;
 int selected_point=0;
-bool toggle_normal;
+bool toggle_render;
 
 
 void draw_axis(){
@@ -67,11 +67,11 @@ point calc_norm(triangle tri){
 	ret_val.z=(u.x*v.y)-(u.y*v.x);
 
 	return ret_val;
-}//normal dotted v 
+}
 
 double dot_pro(point a,point b){
+	
 	return (a.x*b.x)+(a.y*b.y)+(a.z*b.z);
-
 }
 void draw_points(){
 	point cam=point(20,10,20);
@@ -89,6 +89,13 @@ void draw_points(){
 			glVertex3d(tri.c.x,tri.c.z,tri.c.y);
 			glVertex3d(tri.a.x,tri.a.z,tri.a.y);
 		}
+
+	}
+	for (int i = 0; i < 3; ++i)
+	{
+		/* code */
+		glVertex3d(extra_credit[i].x,extra_credit[i].y,extra_credit[i].z);
+		glVertex3d(extra_credit[i+1].x,extra_credit[i+1].y,extra_credit[i+1].z);
 
 	}
 	glEnd();
@@ -109,33 +116,121 @@ void draw_points(){
 		glColor3f(0.0, 0.0, 1.0);
 		glPointSize(6);
 		glBegin(GL_POINTS);
-		glVertex3d(control_points[1][1].x,control_points[1][1].z,control_points[1][1].y);
+		glVertex3d(control_points[0][0].x,control_points[0][0].z,control_points[0][0].y);
 		glEnd();
 	} 
 	else if(selected_point==1){
 		glColor3f(0.0, 0.0, 1.0);
 		glPointSize(6);
 		glBegin(GL_POINTS);
-		glVertex3d(control_points[1][2].x,control_points[1][2].z,control_points[1][2].y);
+		glVertex3d(control_points[0][1].x,control_points[0][1].z,control_points[0][1].y);
 		glEnd();
 	}
 	else if(selected_point==2){
 		glColor3f(0.0, 0.0, 1.0);
 		glPointSize(6);
 		glBegin(GL_POINTS);
-		glVertex3d(control_points[2][1].x,control_points[2][1].z,control_points[2][1].y);
+		glVertex3d(control_points[0][2].x,control_points[0][2].z,control_points[0][2].y);
 		glEnd();
 	}
 	else if(selected_point==3){
 		glColor3f(0.0, 0.0, 1.0);
 		glPointSize(6);
 		glBegin(GL_POINTS);
+		glVertex3d(control_points[0][3].x,control_points[0][3].z,control_points[0][3].y);
+		glEnd();
+	}
+
+	else if(selected_point==4){
+		glColor3f(0.0, 0.0, 1.0);
+		glPointSize(6);
+		glBegin(GL_POINTS);
+		glVertex3d(control_points[1][0].x,control_points[1][0].z,control_points[1][0].y);
+		glEnd();
+	} 
+	else if(selected_point==5){
+		glColor3f(0.0, 0.0, 1.0);
+		glPointSize(6);
+		glBegin(GL_POINTS);
+		glVertex3d(control_points[1][1].x,control_points[1][1].z,control_points[1][1].y);
+		glEnd();
+	}
+	else if(selected_point==6){
+		glColor3f(0.0, 0.0, 1.0);
+		glPointSize(6);
+		glBegin(GL_POINTS);
+		glVertex3d(control_points[1][2].x,control_points[1][2].z,control_points[1][2].y);
+		glEnd();
+	}
+	else if(selected_point==7){
+		glColor3f(0.0, 0.0, 1.0);
+		glPointSize(6);
+		glBegin(GL_POINTS);
+		glVertex3d(control_points[1][3].x,control_points[1][3].z,control_points[1][3].y);
+		glEnd();
+	}
+
+	else if(selected_point==8){
+		glColor3f(0.0, 0.0, 1.0);
+		glPointSize(6);
+		glBegin(GL_POINTS);
+		glVertex3d(control_points[2][0].x,control_points[2][0].z,control_points[2][0].y);
+		glEnd();
+	} 
+	else if(selected_point==9){
+		glColor3f(0.0, 0.0, 1.0);
+		glPointSize(6);
+		glBegin(GL_POINTS);
+		glVertex3d(control_points[2][1].x,control_points[2][1].z,control_points[2][1].y);
+		glEnd();
+	}
+	else if(selected_point==10){
+		glColor3f(0.0, 0.0, 1.0);
+		glPointSize(6);
+		glBegin(GL_POINTS);
 		glVertex3d(control_points[2][2].x,control_points[2][2].z,control_points[2][2].y);
+		glEnd();
+	}
+	else if(selected_point==11){
+		glColor3f(0.0, 0.0, 1.0);
+		glPointSize(6);
+		glBegin(GL_POINTS);
+		glVertex3d(control_points[2][3].x,control_points[2][3].z,control_points[2][3].y);
+		glEnd();
+	}
+
+	else if(selected_point==12){
+		glColor3f(0.0, 0.0, 1.0);
+		glPointSize(6);
+		glBegin(GL_POINTS);
+		glVertex3d(control_points[3][0].x,control_points[3][0].z,control_points[3][0].y);
+		glEnd();
+	} 
+	else if(selected_point==13){
+		glColor3f(0.0, 0.0, 1.0);
+		glPointSize(6);
+		glBegin(GL_POINTS);
+		glVertex3d(control_points[3][1].x,control_points[3][1].z,control_points[3][1].y);
+		glEnd();
+	}
+	else if(selected_point==14){
+		glColor3f(0.0, 0.0, 1.0);
+		glPointSize(6);
+		glBegin(GL_POINTS);
+		glVertex3d(control_points[3][2].x,control_points[3][2].z,control_points[3][2].y);
+		glEnd();
+	}
+	else if(selected_point==15){
+		glColor3f(0.0, 0.0, 1.0);
+		glPointSize(6);
+		glBegin(GL_POINTS);
+		glVertex3d(control_points[3][3].x,control_points[3][3].z,control_points[3][3].y);
 		glEnd();
 	}
 }
 
 void init(){
+
 	for(int y=0;y<16;y++){
 		for(int x=0;x<16;x++){
 			display_points[y][x]=point(x,y,0);
@@ -149,7 +244,10 @@ void init(){
 		}
 
 	}//initialize the display points  
-
+	extra_credit[0]=point(2,0,0);
+	extra_credit[1]=point(2,2,0);
+	extra_credit[2]=point(2,4,0);
+	extra_credit[3]=point(2,8,0);
 }
 
 void reset_triangles(){
@@ -160,8 +258,6 @@ void reset_triangles(){
             surface_triangles.push_back(triangle(display_points[y+1][x],display_points[y][x+1], display_points[y+1][x+1]));
         }
 	}//initialize triangles
-
-
 }
 //11, 13, 31, 33
 point evalCurve(const point* my_points, const float &t){
@@ -205,9 +301,10 @@ void display(){
 
 	for (int i=0; i<16; i++) {
         for (int j=0; j< 16; j++) {
-            display_points[i][j] = evalPatch((float)i/15.0, (float)j/15.0);
+            display_points[i][j] = evalPatch(i/15.0, j/15.0);
         }
 	}
+
 
 	reset_triangles();
 	draw_axis();
@@ -221,7 +318,7 @@ void keyboard(unsigned char key, int, int) {
 		exit(0);
 	}
 	if(key=='t'){
-		if(selected_point==3){
+		if(selected_point==15){
 			selected_point=0;
 		}
 		else{
@@ -232,19 +329,56 @@ void keyboard(unsigned char key, int, int) {
 		//control_peoints[1][1].z+=3;
 		switch(selected_point){
 			case 0:
-				control_points[1][1].z+=3;
+				control_points[0][0].z+=3;
 				break;
 			case 1:
-				control_points[1][2].z+=3;
+				control_points[0][1].z+=3;
 				break;
 			case 2:
+				control_points[0][2].z+=3;
+				break;
+			case 3:
+				control_points[0][3].z+=3;
+				break;
+
+			case 4:
+				control_points[1][0].z+=3;
+				break;
+			case 5:
+				control_points[1][1].z+=3;
+				break;
+			case 6:
+				control_points[1][2].z+=3;
+				break;
+			case 7:
+				control_points[1][3].z+=3;
+				break;
+
+			case 8:
+				control_points[2][0].z+=3;
+				break;
+			case 9:
 				control_points[2][1].z+=3;
 				break;
-
-			case 3:
+			case 10:
 				control_points[2][2].z+=3;
 				break;
+			case 11:
+				control_points[2][3].z+=3;
+				break;
 
+			case 12:
+				control_points[3][0].z+=3;
+				break;
+			case 13:
+				control_points[3][1].z+=3;
+				break;
+			case 14:
+				control_points[3][2].z+=3;
+				break;
+			case 15:
+				control_points[3][3].z+=3;
+				break;
 
 		}
 	}
@@ -252,51 +386,173 @@ void keyboard(unsigned char key, int, int) {
 		//mov_left();
 		switch(selected_point){
 			case 0:
-				control_points[1][1].x-=3;
+				control_points[0][0].x-=3;
 				break;
 			case 1:
-				control_points[1][2].x-=3;
+				control_points[0][1].x-=3;
 				break;
 			case 2:
-				control_points[2][1].x-=3;
+				control_points[0][2].x-=3;
 				break;
 			case 3:
+				control_points[0][3].x-=3;
+				break;
+
+			case 4:
+				control_points[1][0].x-=3;
+				break;
+			case 5:
+				control_points[1][1].x-=3;
+				break;
+			case 6:
+				control_points[1][2].x-=3;
+				break;
+			case 7:
+				control_points[1][3].x-=3;
+				break;
+
+			case 8:
+				control_points[2][0].x-=3;
+				break;
+			case 9:
+				control_points[2][1].x-=3;
+				break;
+			case 10:
 				control_points[2][2].x-=3;
+				break;
+			case 11:
+				control_points[2][3].x-=3;
+				break;
+
+			case 12:
+				control_points[3][0].x-=3;
+				break;
+			case 13:
+				control_points[3][1].x-=3;
+				break;
+			case 14:
+				control_points[3][2].x-=3;
+				break;
+			case 15:
+				control_points[3][3].x-=3;
 				break;
 		}
 	}
 	if(key=='s'){
 		switch(selected_point){
 			case 0:
-				control_points[1][1].z-=3;
+				control_points[0][0].z-=3;
 				break;
 			case 1:
-				control_points[1][2].z-=3;
+				control_points[0][1].z-=3;
 				break;
 			case 2:
-				control_points[2][1].z-=3;
+				control_points[0][2].z-=3;
 				break;
 			case 3:
+				control_points[0][3].z-=3;
+				break;
+
+			case 4:
+				control_points[1][0].z-=3;
+				break;
+			case 5:
+				control_points[1][1].z-=3;
+				break;
+			case 6:
+				control_points[1][2].z-=3;
+				break;
+			case 7:
+				control_points[1][3].z-=3;
+				break;
+
+			case 8:
+				control_points[2][0].z-=3;
+				break;
+			case 9:
+				control_points[2][1].z-=3;
+				break;
+			case 10:
 				control_points[2][2].z-=3;
+				break;
+			case 11:
+				control_points[2][3].z-=3;
+				break;
+
+			case 12:
+				control_points[3][0].z-=3;
+				break;
+			case 13:
+				control_points[3][1].z-=3;
+				break;
+			case 14:
+				control_points[3][2].z-=3;
+				break;
+			case 15:
+				control_points[3][3].z-=3;
 				break;
 		}
 	}
 	if(key=='d'){
 		switch(selected_point){
 			case 0:
-				control_points[1][1].x+=3;
+				control_points[0][0].x+=3;
 				break;
 			case 1:
-				control_points[1][2].x+=3;
+				control_points[0][1].x+=3;
 				break;
 			case 2:
-				control_points[2][1].x+=3;
+				control_points[0][2].x+=3;
 				break;
 			case 3:
+				control_points[0][3].x+=3;
+				break;
+
+			case 4:
+				control_points[1][0].x+=3;
+				break;
+			case 5:
+				control_points[1][1].x+=3;
+				break;
+			case 6:
+				control_points[1][2].x+=3;
+				break;
+			case 7:
+				control_points[1][3].x+=3;
+				break;
+
+			case 8:
+				control_points[2][0].x+=3;
+				break;
+			case 9:
+				control_points[2][1].x+=3;
+				break;
+			case 10:
 				control_points[2][2].x+=3;
+				break;
+			case 11:
+				control_points[2][3].x+=3;
+				break;
+
+			case 12:
+				control_points[3][0].x+=3;
+				break;
+			case 13:
+				control_points[3][1].x+=3;
+				break;
+			case 14:
+				control_points[3][2].x+=3;
+				break;
+			case 15:
+				control_points[3][3].x+=3;
 				break;
 		}
 		//mov_right();
+	}
+
+	if(key=='r'){
+		toggle_render=!toggle_render;
+
 	}
 	  glutPostRedisplay();
 
